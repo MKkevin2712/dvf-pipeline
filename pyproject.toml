@@ -26,6 +26,13 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.17.0",
 ]
+notebook = [
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "nbconvert>=7.17.2",
+    "nbformat>=5.11.1",
+    "plotly>=7.1.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

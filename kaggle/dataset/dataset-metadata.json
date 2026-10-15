@@ -1,0 +1,27 @@
+{
+  "title": "French Housing Prices DVF 2021-2025 (Cleaned)",
+  "id": "kevinnkameni/french-housing-prices-dvf",
+  "subtitle": "608k home sales in 5 French departments, cleaned and aggregated to price per m2",
+  "description": "# French housing prices 2021–2025 (DVF, cleaned)\n\nEvery real estate sale in France is published by the French government in the **DVF** open data (*Demandes de valeurs foncières*). The raw files are notoriously tricky to use. This dataset is the **cleaned output of a data engineering pipeline** (Python ingestion, dbt transformations and 25 data quality tests, orchestrated by Airflow): one row per sale of a single home, with a reliable **price per m²**.\n\n**Coverage:** 2021–2025 · 5 departments: Paris (75), Rhône / Lyon (69), Bouches-du-Rhône / Marseille (13), Gironde / Bordeaux (33), Hérault / Montpellier (34) · 1,298 communes.\n\n## Files\n\n| File | Rows | Content |\n|---|---:|---|\n| `home_sales.parquet` | 608,226 | One row per sale of a single apartment or house |\n| `price_per_m2_by_commune_year.csv` | 9,359 | Median, quartiles of price per m², median price and size, by commune, year and property type |\n| `price_per_m2_by_department_month.csv` | 600 | Monthly median price per m² by department and property type |\n| `communes.csv` | 1,298 | Commune names, department and coordinates (median of geolocated sales) |\n\n## How the raw data was cleaned\n\n| Pitfall in raw DVF | What goes wrong if ignored | Treatment |\n|---|---|---|\n| One sale = several rows (home, cellar, parking, land parcels), and the **total price is repeated on every row** | prices multiplied when summed | grouped by sale, price taken once |\n| 7 % of sales include **several homes** sold together | the price per home cannot be known | excluded |\n| A sale can include parcels in **two communes** | sale assigned to the wrong commune | location taken from the home's own row |\n| Outliers (symbolic 1 € sales, parking lots declared as flats…) | distorted averages | kept only 500–30,000 €/m², homes ≥ 9 m²; medians instead of means |\n\nOnly *Vente* and *Vente en l'état futur d'achèvement* (new builds, `is_new_build = true`) are kept.\n\n## Columns of `home_sales.parquet`\n\n`sale_id`, `sale_date`, `year`, `month`, `is_new_build`, `department_code`, `commune_code` (INSEE code), `commune_name`, `postal_code`, `property_type` (Apartment / House), `living_area_m2`, `rooms`, `outbuildings` (cellars, parkings sold with the home), `land_area_m2`, `price_eur`, `price_per_m2_eur`, `longitude`, `latitude`.\n\n## Source and license\n\nSource: *Demandes de valeurs foncières géolocalisées*, Etalab / DGFiP, published on data.gouv.fr under the **Licence Ouverte / Open Licence 2.0** (compatible with CC-BY 2.0). This derived dataset is shared under the same license: please credit the original source.\n\nPipeline code (ingestion, dbt models and tests, Airflow DAG, React dashboard): https://github.com/MKkevin2712/dvf-pipeline\n\nAuthor: Kevin Moukam Nkameni",
+  "isPrivate": false,
+  "licenses": [{ "name": "other" }],
+  "keywords": ["real estate", "housing", "europe", "tabular", "data cleaning"],
+  "resources": [
+    {
+      "path": "home_sales.parquet",
+      "description": "One row per sale of a single home (apartment or house), 2021-2025, with price per m2 and coordinates."
+    },
+    {
+      "path": "price_per_m2_by_commune_year.csv",
+      "description": "Price per m2 statistics by commune, year and property type."
+    },
+    {
+      "path": "price_per_m2_by_department_month.csv",
+      "description": "Monthly median price per m2 by department and property type."
+    },
+    {
+      "path": "communes.csv",
+      "description": "Communes with name, department and coordinates."
+    }
+  ]
+}

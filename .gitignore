@@ -22,3 +22,7 @@ logs/
 
 # Fichiers JSON générés pour la version en ligne (export_static)
 web/public/data/
+
+# Fichiers du dataset Kaggle (régénérés par kaggle/build_dataset.py, publiés sur Kaggle)
+kaggle/dataset/*.parquet
+kaggle/dataset/*.csv
