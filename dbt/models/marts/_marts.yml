@@ -25,3 +25,13 @@ models:
       - unique_combination:
           arguments:
             columns: [mois, code_departement, type_local]
+
+  - name: dim_communes
+    description: Communes avec leur position (médiane des coordonnées des ventes), pour la carte.
+    columns:
+      - name: code_commune
+        data_tests: [unique, not_null]
+      - name: latitude
+        data_tests: [not_null]
+      - name: longitude
+        data_tests: [not_null]

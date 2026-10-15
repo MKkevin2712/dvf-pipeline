@@ -9,9 +9,11 @@ dependencies = [
     "dbt-duckdb>=1.11.0",
     "dbt-postgres>=1.11.0",
     "duckdb>=1.5.6",
+    "fastapi>=0.143.2",
     "httpx>=0.28.1",
     "pandas>=3.0.6",
     "psycopg[binary]>=3.3.6",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [build-system]
@@ -20,6 +22,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
     "ruff>=0.17.0",
 ]
