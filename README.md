@@ -45,6 +45,21 @@ ingestion  ──►  controle_volume  ──►  dbt_build
 Chaque tâche est relancée 2 fois en cas d'échec, et deux exécutions ne peuvent pas tourner en même temps.
 Résultat vérifié : **608 226 ventes** retenues, identiques sur PostgreSQL et DuckDB.
 
+## Interface web (React + API FastAPI)
+
+![Interface web](docs/interface.png)
+
+- **API FastAPI** (`src/dvf_pipeline/api.py`) : lit les tables `marts` produites par dbt (DuckDB ou PostgreSQL) ;
+- **React + TypeScript** (`web/`, Vite) : chiffres clés, **carte** des prix par commune (Leaflet), classement,
+  **évolution mensuelle** avec moyenne glissante (Recharts) et historique d'une commune au clic.
+
+```bash
+uv run uvicorn dvf_pipeline.api:app --port 8000      # API : http://127.0.0.1:8000/docs
+cd web && npm install && npm run dev                 # interface : http://localhost:5173
+```
+
+Une commune n'apparaît que si elle compte au moins 10 ventes dans l'année : en dessous, une médiane n'est pas fiable.
+
 ## Lancer le projet en local (sans Docker)
 
 ```bash
@@ -60,7 +75,7 @@ uv run pytest                                 # tests de l'ingestion
 - [x] Modèles dbt staging / intermediate / marts et tests de qualité
 - [x] Docker Compose : PostgreSQL + Airflow 3
 - [x] DAG Airflow mensuel : ingestion → contrôle de volume → dbt build (relances automatiques)
-- [ ] Dashboard (carte et évolution des prix)
+- [x] API FastAPI et interface web React (carte, classement, évolution mensuelle, historique par commune)
 - [ ] CI GitHub Actions (dbt build sur DuckDB)
 
 ## Auteur
