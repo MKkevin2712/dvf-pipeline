@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[oc]
+.venv
+.pytest_cache/
+.ruff_cache/
+*.egg-info
+
+# Données (retéléchargeables) et entrepôt local
+data/
+*.duckdb
+*.duckdb.wal
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+logs/
+
+.env

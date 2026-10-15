@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: fct_ventes_logements
+    description: Ventes d'un logement au prix au m² plausible ; table de faits pour l'analyse et la carte.
+    columns:
+      - name: id_mutation
+        data_tests: [unique, not_null]
+
+  - name: agg_prix_m2_commune_annee
+    description: Prix au m² médian, quartiles, prix et surface médians par commune, année et type de logement.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [annee, code_commune, type_local]
+    columns:
+      - name: nb_ventes
+        data_tests: [not_null]
+      - name: prix_m2_median
+        data_tests: [not_null]
+
+  - name: agg_prix_m2_departement_mois
+    description: Prix au m² médian mensuel par département et type de logement.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [mois, code_departement, type_local]

@@ -1,0 +1,29 @@
+name: dvf
+version: "1.0.0"
+config-version: 2
+profile: dvf
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages", "logs"]
+
+vars:
+  # Bornes de plausibilité du prix au m² (€) : en dehors, il s'agit presque toujours d'erreurs de saisie
+  # ou de ventes atypiques (lot de parkings déclaré en appartement, vente à un euro symbolique…)
+  prix_m2_min: 500
+  prix_m2_max: 30000
+  surface_min: 9        # surface minimale d'un logement décent (m²)
+
+models:
+  dvf:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: table
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts

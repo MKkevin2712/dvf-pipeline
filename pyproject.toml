@@ -1,0 +1,31 @@
+[project]
+name = "dvf-pipeline"
+version = "0.1.0"
+description = "Pipeline de données immobilières DVF : ingestion Python, transformations dbt, orchestration Airflow, PostgreSQL."
+authors = [{ name = "Kevin Moukam Nkameni", email = "kevinnkameni@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "dbt-core>=1.9",
+    "dbt-duckdb>=1.11.0",
+    "dbt-postgres>=1.11.0",
+    "duckdb>=1.5.6",
+    "httpx>=0.28.1",
+    "pandas>=3.0.6",
+    "psycopg[binary]>=3.3.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110

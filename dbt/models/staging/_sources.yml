@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Données DVF géolocalisées (Etalab), chargées telles quelles par dvf_pipeline.ingest
+    schema: raw
+    tables:
+      - name: dvf_mutations
+        description: >
+          Une ligne par élément d'une mutation (local, dépendance, parcelle…). Le prix
+          (valeur_fonciere) est celui de la mutation entière, répété sur chacune de ses lignes.
+        columns:
+          - name: id_mutation
+            data_tests: [not_null]
+          - name: _source_file
+            data_tests: [not_null]

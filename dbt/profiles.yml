@@ -1,0 +1,19 @@
+# Deux cibles pour le même projet dbt :
+#   duckdb   : local, sans installation (développement et CI)
+#   postgres : entrepôt PostgreSQL lancé par Docker Compose
+dvf:
+  target: "{{ env_var('DVF_TARGET', 'duckdb') }}"
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DVF_DUCKDB_PATH', '../data/warehouse/dvf.duckdb') }}"
+      threads: 4
+    postgres:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'dvf') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'dvf') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'dvf') }}"
+      schema: public
+      threads: 4

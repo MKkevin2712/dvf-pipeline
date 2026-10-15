@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: int_ventes_logements
+    description: Une ligne par vente d'un seul logement, avec son prix et son prix au m².
+    columns:
+      - name: id_mutation
+        data_tests: [unique, not_null]
+      - name: type_local
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Maison", "Appartement"]
+      - name: surface
+        data_tests: [not_null]
+      - name: prix_m2
+        data_tests: [not_null]

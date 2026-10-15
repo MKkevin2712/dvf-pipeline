@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_dvf__mutations
+    description: Lignes DVF typées (dates, montants, surfaces, coordonnées).
+    columns:
+      - name: id_mutation
+        data_tests: [not_null]
+      - name: date_mutation
+        data_tests: [not_null]
+      - name: nature_mutation
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Vente", "Vente en l''état futur d''achèvement", "Echange", "Adjudication",
+                         "Vente terrain à bâtir", "Expropriation"]
