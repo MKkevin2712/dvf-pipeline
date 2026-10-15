@@ -26,7 +26,26 @@ Le même projet dbt tourne sur **DuckDB** (local, CI) et **PostgreSQL** (Docker)
 
 Le troisième piège a été détecté par un **test dbt** (unicité commune × année × type).
 
-## Lancer le projet
+## Orchestration (Airflow + PostgreSQL, avec Docker)
+
+```bash
+docker compose up -d --build        # PostgreSQL + Airflow 3 ; interface : http://localhost:8080
+```
+
+Le DAG `dvf_pipeline` s'exécute chaque mois :
+
+```
+ingestion  ──►  controle_volume  ──►  dbt_build
+```
+
+- **ingestion** : téléchargement et chargement idempotent dans `raw.dvf_mutations` (PostgreSQL) ;
+- **controle_volume** : garde-fou, arrête le pipeline si moins de 100 000 lignes ont été chargées (source incomplète) ;
+- **dbt_build** : modèles staging → intermediate → marts et 25 tests de qualité.
+
+Chaque tâche est relancée 2 fois en cas d'échec, et deux exécutions ne peuvent pas tourner en même temps.
+Résultat vérifié : **608 226 ventes** retenues, identiques sur PostgreSQL et DuckDB.
+
+## Lancer le projet en local (sans Docker)
 
 ```bash
 uv sync
@@ -39,8 +58,8 @@ uv run pytest                                 # tests de l'ingestion
 
 - [x] Ingestion idempotente (DuckDB et PostgreSQL)
 - [x] Modèles dbt staging / intermediate / marts et tests de qualité
-- [ ] Docker Compose : PostgreSQL + Airflow
-- [ ] DAG Airflow : ingestion → dbt build
+- [x] Docker Compose : PostgreSQL + Airflow 3
+- [x] DAG Airflow mensuel : ingestion → contrôle de volume → dbt build (relances automatiques)
 - [ ] Dashboard (carte et évolution des prix)
 - [ ] CI GitHub Actions (dbt build sur DuckDB)
 
