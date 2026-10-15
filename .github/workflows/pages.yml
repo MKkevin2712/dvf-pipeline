@@ -1,0 +1,69 @@
+# Publication de l'interface sur GitHub Pages.
+# Exécute toute la chaîne (ingestion → dbt → export JSON → compilation React), à chaque push sur main
+# et chaque mois : le site se met à jour tout seul quand de nouvelles données DVF sont publiées.
+name: Publication du site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 2 * *"   # le 2 de chaque mois à 6 h (UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+
+      - name: Ingestion (5 départements, 2021–2025)
+        run: uv run python -m dvf_pipeline.ingest
+
+      - name: Transformations et tests (dbt build)
+        working-directory: dbt
+        run: uv run dbt build --profiles-dir .
+
+      - name: Export des indicateurs en JSON
+        run: uv run python -m dvf_pipeline.export_static
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Compilation de l'interface (version statique)
+        working-directory: web
+        env:
+          VITE_STATIC: "1"
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

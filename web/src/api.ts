@@ -51,18 +51,36 @@ export interface Filtres {
 }
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
+// Version publiée en ligne (GitHub Pages) : pas de serveur, l'interface lit des fichiers JSON
+// exportés par dvf_pipeline.export_static (mêmes réponses que l'API).
+const STATIC = import.meta.env.VITE_STATIC === '1'
 
-async function get<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
-  const query = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]))
-  const response = await fetch(`${BASE}/api${path}${query.size ? `?${query}` : ''}`)
-  if (!response.ok) throw new Error(`Erreur ${response.status} sur ${path}`)
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`Erreur ${response.status} sur ${url}`)
   return response.json() as Promise<T>
 }
 
-export const api = {
-  meta: () => get<Meta>('/meta'),
-  kpis: (f: Filtres) => get<Kpis>('/kpis', { ...f }),
-  communes: (f: Filtres) => get<Commune[]>('/communes', { ...f }),
-  evolution: (f: Filtres) => get<PointMensuel[]>('/evolution', { departement: f.departement, type_local: f.type_local }),
-  commune: (code: string) => get<CommuneDetail>(`/communes/${code}`),
+function get<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
+  const query = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]))
+  return fetchJson<T>(`${BASE}/api${path}${query.size ? `?${query}` : ''}`)
 }
+
+const file = <T>(name: string) => fetchJson<T>(`${import.meta.env.BASE_URL}data/${name}.json`)
+
+export const api = STATIC
+  ? {
+      meta: () => file<Meta>('meta'),
+      kpis: (f: Filtres) => file<Kpis>(`kpis_${f.departement}_${f.type_local}_${f.annee}`),
+      communes: (f: Filtres) => file<Commune[]>(`communes_${f.departement}_${f.type_local}_${f.annee}`),
+      evolution: (f: Filtres) => file<PointMensuel[]>(`evolution_${f.departement}_${f.type_local}`),
+      commune: (code: string) => file<CommuneDetail>(`commune_${code}`),
+    }
+  : {
+      meta: () => get<Meta>('/meta'),
+      kpis: (f: Filtres) => get<Kpis>('/kpis', { ...f }),
+      communes: (f: Filtres) => get<Commune[]>('/communes', { ...f }),
+      evolution: (f: Filtres) =>
+        get<PointMensuel[]>('/evolution', { departement: f.departement, type_local: f.type_local }),
+      commune: (code: string) => get<CommuneDetail>(`/communes/${code}`),
+    }

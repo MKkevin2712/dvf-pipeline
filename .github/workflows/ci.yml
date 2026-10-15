@@ -1,0 +1,52 @@
+# Intégration continue : à chaque push ou pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pipeline:
+    name: Python, tests et dbt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Installer Python 3.12 et les dépendances
+        run: uv sync --frozen
+
+      - name: Vérifier le style (ruff)
+        run: uv run ruff check src tests airflow
+
+      - name: Tests (pytest)
+        run: uv run pytest -p no:warnings
+
+      - name: Ingestion d'un échantillon réel (Hérault, 2024) dans DuckDB
+        run: uv run python -m dvf_pipeline.ingest --years 2024 --departements 34
+
+      - name: Transformations et tests de qualité (dbt build)
+        working-directory: dbt
+        run: uv run dbt build --profiles-dir .
+
+  web:
+    name: Interface React
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Lint (oxlint)
+        run: npm run lint
+      - name: Vérification des types et compilation
+        run: npm run build

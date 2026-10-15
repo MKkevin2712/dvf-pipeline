@@ -1,6 +1,9 @@
 # Pipeline de données immobilières (DVF)
 
-> 🚧 Projet en cours (octobre 2026)
+[![CI](https://github.com/MKkevin2712/dvf-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/MKkevin2712/dvf-pipeline/actions/workflows/ci.yml)
+[![Publication du site](https://github.com/MKkevin2712/dvf-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/MKkevin2712/dvf-pipeline/actions/workflows/pages.yml)
+
+🌍 **Site en ligne** : [mkkevin2712.github.io/dvf-pipeline](https://mkkevin2712.github.io/dvf-pipeline/)
 
 Pipeline de data engineering sur les **Demandes de valeurs foncières** (DVF) : toutes les ventes immobilières
 publiées par l'État. Objectif : produire des indicateurs fiables de **prix au m²** par commune et par mois.
@@ -60,6 +63,10 @@ cd web && npm install && npm run dev                 # interface : http://localh
 
 Une commune n'apparaît que si elle compte au moins 10 ventes dans l'année : en dessous, une médiane n'est pas fiable.
 
+**Version en ligne sans serveur** : `python -m dvf_pipeline.export_static` exporte les réponses de l'API en fichiers
+JSON, que l'interface lit quand elle est compilée avec `VITE_STATIC=1`. Le workflow `pages.yml` exécute chaque mois
+toute la chaîne (ingestion → dbt → export → compilation) et publie le site sur GitHub Pages.
+
 ## Lancer le projet en local (sans Docker)
 
 ```bash
@@ -76,7 +83,8 @@ uv run pytest                                 # tests de l'ingestion
 - [x] Docker Compose : PostgreSQL + Airflow 3
 - [x] DAG Airflow mensuel : ingestion → contrôle de volume → dbt build (relances automatiques)
 - [x] API FastAPI et interface web React (carte, classement, évolution mensuelle, historique par commune)
-- [ ] CI GitHub Actions (dbt build sur DuckDB)
+- [x] CI GitHub Actions : ruff, pytest, ingestion d'un échantillon réel + dbt build, lint et compilation React
+- [x] Publication automatique sur GitHub Pages, chaque mois (chaîne complète, sans serveur : indicateurs exportés en JSON)
 
 ## Auteur
 

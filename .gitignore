@@ -19,3 +19,6 @@ dbt/.user.yml
 logs/
 
 .env
+
+# Fichiers JSON générés pour la version en ligne (export_static)
+web/public/data/
